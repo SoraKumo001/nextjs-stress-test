@@ -4,12 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node -P server/tsconfig.json server/index.ts",
+    "dev": "ts-node-dev --ignore-watch \\.next -P server/tsconfig.json -- server/index.ts",
     "build": "tsc -b server && next build",
-    "start:01": "cross-env NODE_ENV=production CLUSTERS=1 node .next/index.js",
-    "start:02": "cross-env NODE_ENV=production CLUSTERS=2 node .next/index.js",
-    "start:04": "cross-env NODE_ENV=production CLUSTERS=4 node .next/index.js",
-    "start:08": "cross-env NODE_ENV=production CLUSTERS=8 node .next/index.js",
+    "start": "cross-env NODE_ENV=production .next/index.js",
     "export": "next export"
   },
   "devDependencies": {
@@ -23,14 +20,18 @@
     "eslint-plugin-prettier": "^3.3.1",
     "prettier": "^2.2.1",
     "typescript": "^4.1.3",
-    "ts-node": "^9.1.1"
+    "ts-node-dev": "^1.1.1"
   },
   "dependencies": {
-    "next": "^10.0.5",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
     "cross-env": "^7.0.3",
     "fastify": "^3.10.1",
-    "fastify-compress": "^3.4.1"
+    "fastify-compress": "^3.4.1",
+    "next": "^10.0.4",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
+  "resolutions": {
+    "browserslist": "^4.16.1",
+    "caniuse-lite": "^1.0.30001179"
   }
 }

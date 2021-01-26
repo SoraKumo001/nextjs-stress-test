@@ -42,21 +42,10 @@ if (cluster.isMaster) {
 
 ## 使い方
 
-- ビルド
-  
-```sh
-yarn
-yarn build
-```
-
-- 実行
-  - 1プロセス  
-    `yarn start:01`
-  - 2プロセス  
-    `yarn start:02`
-  - 4プロセス  
-    `yarn start:04`
-  - 8プロセス  
-    `yarn start:08`
+- ビルド  
+`yarn`  
+`yarn build`  
+- 実行  
+`yarn start`  
 - 確認  
-  - `http://localhost:3000/`
+`http://localhost:3000/`

@@ -1,33 +1,8 @@
 import React, { useEffect, useState } from "react";
 import * as os from "os";
-
-type FetchState = (value: {
-  state: "processing" | "finished";
-  finishCount: number;
-  errorCount: number;
-}) => void;
-
-const attack = async (count: number, onState: FetchState) => {
-  let finishCount = 0;
-  let errorCount = 0;
-  for (let i = 0; i < count; i++) {
-    await Promise.all(
-      Array(100)
-        .fill(null)
-        .map(() =>
-          fetch("/api", { cache: "no-store" })
-            .then(() => {
-              finishCount++;
-            })
-            .catch(() => {
-              errorCount++;
-            })
-        )
-    );
-    onState({ state: "processing", finishCount, errorCount });
-  }
-  onState({ state: "finished", finishCount, errorCount });
-};
+import { ServerInfoType } from "./api/getServerInfo";
+import { attack, AttackState, getServerInfo } from "../libs";
+import { Cluster } from "../components/cluster";
 
 type History = {
   clusters: number;
@@ -35,22 +10,26 @@ type History = {
   time: number;
 };
 
-interface Props {
-  clusters: number;
-  cpus: number;
-}
-
-export const Page = ({ clusters, cpus }: Props) => {
-  const [state, setState] = useState<Parameters<FetchState>[0]>();
+export const Page = (props: ServerInfoType) => {
+  const [serverInfo, setServerInfo] = useState<ServerInfoType>(props);
+  const [state, setState] = useState<Parameters<AttackState>[0]>();
   const [time, setTime] = useState<number[]>();
   const [historys, setHistorys] = useState<History[]>();
-  const onState: FetchState = (value) => {
+
+  const onState: AttackState = (value) => {
     setState(value);
     const now = performance.now();
     setTime((time) => {
       if (value.state === "finished") {
         const h = JSON.parse(localStorage.getItem("history") || "[]");
-        const historyArray = [...h, { clusters, cpus, time: now - time[0] }];
+        const historyArray = [
+          ...h,
+          {
+            clusters: serverInfo.clusters,
+            cpus: serverInfo.cpus,
+            time: now - time[0],
+          },
+        ];
         localStorage.setItem("history", JSON.stringify(historyArray));
         setHistorys(historyArray);
       }
@@ -62,7 +41,19 @@ export const Page = ({ clusters, cpus }: Props) => {
     h && setHistorys(JSON.parse(h));
   }, []);
   return (
-    <>
+    <div className="root">
+      <style jsx>{`
+        .button {
+          margin-left: 8px;
+        }
+      `}</style>
+      <Cluster
+        info={serverInfo}
+        onCluster={() => {
+          getServerInfo().then((value) => setServerInfo(value));
+        }}
+      />
+      <hr />
       <button
         onClick={() => {
           if (state?.state !== "processing") {
@@ -71,24 +62,37 @@ export const Page = ({ clusters, cpus }: Props) => {
           }
         }}
       >
-        開始
+        テスト開始
       </button>
       <div>
-        CPU: {clusters}/{cpus}
+        {time && `${Math.floor(time[1] - time[0]).toLocaleString()}ms `}
+        {JSON.stringify(state)}
       </div>
-      <div>{time && `${Math.floor(time[1] - time[0]).toLocaleString()}ms`}</div>
-      <div>{JSON.stringify(state)}</div>
       <hr />
-      {historys
-        ?.slice()
-        .reverse()
-        .map((history, index) => (
-          <div key={index}>
-            CPU:{history.clusters}/{history.cpus} TIME:
-            {Math.floor(history.time).toLocaleString()}ms
-          </div>
-        ))}
-    </>
+      <div>
+        <div>
+          履歴
+          <button
+            className="button"
+            onClick={() => {
+              localStorage.removeItem("history");
+              setHistorys([]);
+            }}
+          >
+            Clear
+          </button>
+        </div>
+        {historys
+          ?.slice()
+          .reverse()
+          .map((history, index) => (
+            <div key={index}>
+              CPU:{history.clusters}/{history.cpus} TIME:
+              {Math.floor(history.time).toLocaleString()}ms
+            </div>
+          ))}
+      </div>
+    </div>
   );
 };
 
@@ -97,7 +101,7 @@ export default Page;
 export const getServerSideProps = () => {
   return {
     props: {
-      clusters: process.env.CLUSTERS ?? 0,
+      clusters: Number(process.env.CLUSTERS) ?? 1,
       cpus: os.cpus().length,
     },
   };
