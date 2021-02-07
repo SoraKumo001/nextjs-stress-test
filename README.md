@@ -45,7 +45,9 @@ if (cluster.isMaster) {
 - ビルド  
 `yarn`  
 `yarn build`  
-- 実行  
-`yarn start`  
+- 実行1(ロードバランスをOSが制御)  
+`yarn start`
+- 実行2(ロードバランスをプロセス制御)  
+`yarn start:rr`
 - 確認  
 `http://localhost:3000/`

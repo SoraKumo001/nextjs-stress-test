@@ -8,6 +8,8 @@ type History = {
   clusters: number;
   cpus: number;
   time: number;
+  policy: string;
+  clusterCount: number[];
 };
 
 export const Page = (props: ServerInfoType) => {
@@ -27,6 +29,8 @@ export const Page = (props: ServerInfoType) => {
           {
             clusters: serverInfo.clusters,
             cpus: serverInfo.cpus,
+            clusterCount: value.clusterCount,
+            policy: serverInfo.policy,
             time: now - time[0],
           },
         ];
@@ -57,7 +61,7 @@ export const Page = (props: ServerInfoType) => {
       <button
         onClick={() => {
           if (state?.state !== "processing") {
-            attack(100, onState);
+            attack(100, serverInfo, onState);
             setTime(Array(2).fill(performance.now()));
           }
         }}
@@ -66,7 +70,7 @@ export const Page = (props: ServerInfoType) => {
       </button>
       <div>
         {time && `${Math.floor(time[1] - time[0]).toLocaleString()}ms `}
-        {JSON.stringify(state)}
+        <pre>{JSON.stringify(state, undefined, "  ")}</pre>
       </div>
       <hr />
       <div>
@@ -88,7 +92,9 @@ export const Page = (props: ServerInfoType) => {
           .map((history, index) => (
             <div key={index}>
               CPU:{history.clusters}/{history.cpus} TIME:
-              {Math.floor(history.time).toLocaleString()}ms
+              {Math.floor(history.time).toLocaleString()}ms Policy:
+              {history.policy} Clusters:
+              {JSON.stringify(history.clusterCount)}
             </div>
           ))}
       </div>
@@ -103,6 +109,7 @@ export const getServerSideProps = () => {
     props: {
       clusters: Number(process.env.CLUSTERS) ?? 1,
       cpus: os.cpus().length,
+      policy: process.env.NODE_CLUSTER_SCHED_POLICY,
     },
   };
 };

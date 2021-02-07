@@ -4,18 +4,20 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node-dev --ignore-watch \\.next -P server/tsconfig.json -- server/index.ts",
+    "dev": "cross-env NODE_CLUSTER_SCHED_POLICY=none ts-node-dev --ignore-watch \\.next -P server/tsconfig.json -- server/index.ts",
+    "dev:rr": "cross-env NODE_CLUSTER_SCHED_POLICY=rr ts-node-dev --ignore-watch \\.next -P server/tsconfig.json -- server/index.ts",
     "build": "tsc -b server && next build",
-    "start": "cross-env NODE_ENV=production .next/index.js",
+    "start": "cross-env NODE_ENV=production NODE_CLUSTER_SCHED_POLICY=none node .next/index.js",
+    "start:rr": "cross-env NODE_ENV=production NODE_CLUSTER_SCHED_POLICY=rr node .next/index.js",
     "export": "next export"
   },
   "devDependencies": {
-    "@types/node": "^14.14.22",
-    "@types/react": "^17.0.0",
+    "@types/node": "^14.14.25",
+    "@types/react": "^17.0.1",
     "@types/react-dom": "^17.0.0",
-    "@typescript-eslint/eslint-plugin": "^4.14.0",
-    "@typescript-eslint/parser": "^4.14.0",
-    "eslint": "^7.18.0",
+    "@typescript-eslint/eslint-plugin": "^4.14.2",
+    "@typescript-eslint/parser": "^4.14.2",
+    "eslint": "^7.19.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-prettier": "^3.3.1",
     "prettier": "^2.2.1",
@@ -24,14 +26,10 @@
   },
   "dependencies": {
     "cross-env": "^7.0.3",
-    "fastify": "^3.10.1",
+    "fastify": "^3.11.0",
     "fastify-compress": "^3.4.1",
-    "next": "^10.0.4",
+    "next": "^10.0.6",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
-  },
-  "resolutions": {
-    "browserslist": "^4.16.1",
-    "caniuse-lite": "^1.0.30001179"
   }
 }
